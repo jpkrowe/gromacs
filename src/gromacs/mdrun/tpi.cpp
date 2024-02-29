@@ -313,6 +313,8 @@ void LegacySimulator::do_tpi()
 
     /* The last charge group is the group to be inserted */
     const t_atoms& atomsToInsert = topGlobal_.moltype[topGlobal_.molblock.back().type].atoms;
+    /* a_tp0 is the atom index of the 1st atom to be inserted
+    and a_tp1 is the atom index after the last atom to be inserted*/
     a_tp0                        = topGlobal_.natoms - atomsToInsert.nr;
     a_tp1                        = topGlobal_.natoms;
     if (debug)
@@ -430,7 +432,23 @@ void LegacySimulator::do_tpi()
                     drmax);
         }
     }
-
+    /* print out the molecule information to log file*/
+    if (fpLog_)
+    {
+        if (a_tp1 - a_tp0 == 1)
+        {
+            fprintf(fpLog_, "\nInserting atom \n");
+        }
+        else
+        {
+            fprintf(fpLog_, "\nInserting molecule \n");
+            /* Copy the coordinates from the input trajectory */
+            for (i = a_tp0; i < a_tp1; i++)
+                {
+                    fprintf(fpLog_, "\n Atom %d at: %f %f %f\n", i - a_tp0, x[i][XX], x[i][YY], x[i][ZZ]);
+                }
+        }
+    }
     /* With the same pair list we insert in a sphere of radius rtpi
      * in different orientations. We generate the pairlist with all
      * inserted atoms located in the center of the sphere, so we need
@@ -851,11 +869,16 @@ void LegacySimulator::do_tpi()
              * repulsion, dispersion and Coulomb to avoid accidental
              * negative values in the total energy.
              * The table generation code in tables.c does this.
-             * With user tbales the user should take care of this.
+             * With user tables the user should take care of this.
              */
             if (epot != epot || epot > GMX_REAL_MAX)
             {
                 bEnergyOutOfBounds = TRUE;
+            }
+            /* Quick print statement to work out what the value of GMX_REAL_MAX is*/
+            else
+            {
+                fprintf(debug, "\n\n\n GMX_REAL_MAX = %f\n\n\n", GMX_REAL_MAX);
             }
             if (bEnergyOutOfBounds)
             {
@@ -946,6 +969,18 @@ void LegacySimulator::do_tpi()
                         x_tp[XX],
                         x_tp[YY],
                         x_tp[ZZ]);
+                if (fpLog_)
+                {
+                    fprintf(fpLog_,
+                            "TPI %7d Epot: %12.5e exp(-bU): %12.5e mu: %10.3e \n COM pos: %12.5f %12.5f %12.5f\n",
+                            static_cast<int>(step),
+                            epot, 
+                            embU,
+                            -log(sum_embU / nsteps) / beta,
+                            x_tp[XX],
+                            x_tp[YY],
+                            x_tp[ZZ]);
+                }
             }
 
             if (dump_pdb && epot <= dump_ener)
