@@ -58,8 +58,8 @@ static inline t_complex rcexp(real r)
 {
     t_complex c;
 
-    c.re = cos(r);
-    c.im = sin(r);
+    c.re = std::cos(r);
+    c.im = std::sin(r);
 
     return c;
 }

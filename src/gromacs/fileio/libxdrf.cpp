@@ -72,7 +72,7 @@ const char* enumValueToString(XdrDataType enumValue)
 // 32-bit integer. There is no need to ensure we are within the range
 // of ints with exact floating-point representations. However, we should
 // reject all floats above that which converts to an in-range 32-bit integer.
-const float maxAbsoluteInt = nextafterf(float(INT_MAX), 0.F); // NOLINT(cert-err58-cpp)
+const float maxAbsoluteInt = std::nextafterf(float(INT_MAX), 0.F); // NOLINT(cert-err58-cpp)
 
 #ifndef SQR
 #    define SQR(x) ((x) * (x))
@@ -750,9 +750,9 @@ int xdr3dfcoord(XDR* xdrs, float* fp, int* size, float* precision, int magic_num
                 i++;
                 thiscoord = thiscoord + 3;
                 is_small  = 0;
-                if (i < *size && abs(thiscoord[0] - prevcoord[0]) < smallnum
-                    && abs(thiscoord[1] - prevcoord[1]) < smallnum
-                    && abs(thiscoord[2] - prevcoord[2]) < smallnum)
+                if (i < *size && std::abs(thiscoord[0] - prevcoord[0]) < smallnum
+                    && std::abs(thiscoord[1] - prevcoord[1]) < smallnum
+                    && std::abs(thiscoord[2] - prevcoord[2]) < smallnum)
                 {
                     is_small = 1;
                 }
@@ -1457,7 +1457,7 @@ int xdr_xtc_seek_frame(int frame, FILE* fp, XDR* xdrs, int natoms)
         {
             return -1;
         }
-        if (fr != frame && llabs(low - high) > header_size)
+        if (fr != frame && std::llabs(low - high) > header_size)
         {
             if (fr < frame)
             {
@@ -1591,7 +1591,7 @@ int xdr_xtc_seek_time(real time, FILE* fp, XDR* xdrs, int natoms, gmx_bool bSeek
            stop and check if we reached the solution */
         if ((((t < time && dt_sign >= 0) || (t > time && dt_sign == -1))
              || ((t - time) >= dt && dt_sign >= 0) || ((time - t) >= -dt && dt_sign < 0))
-            && (llabs(low - high) > header_size))
+            && (std::llabs(low - high) > header_size))
         {
             if (dt >= 0 && dt_sign != -1)
             {
@@ -1629,7 +1629,7 @@ int xdr_xtc_seek_time(real time, FILE* fp, XDR* xdrs, int natoms, gmx_bool bSeek
         }
         else
         {
-            if (llabs(low - high) <= header_size)
+            if (std::llabs(low - high) <= header_size)
             {
                 break;
             }

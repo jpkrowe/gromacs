@@ -186,10 +186,11 @@ void matrix_convert(matrix box, const rvec vec, const rvec angleInDegrees)
     rvec angle;
     svmul(gmx::c_deg2Rad, angleInDegrees, angle);
     box[XX][XX] = vec[XX];
-    box[YY][XX] = vec[YY] * cos(angle[ZZ]);
-    box[YY][YY] = vec[YY] * sin(angle[ZZ]);
-    box[ZZ][XX] = vec[ZZ] * cos(angle[YY]);
-    box[ZZ][YY] = vec[ZZ] * (cos(angle[XX]) - cos(angle[YY]) * cos(angle[ZZ])) / sin(angle[ZZ]);
+    box[YY][XX] = vec[YY] * std::cos(angle[ZZ]);
+    box[YY][YY] = vec[YY] * std::sin(angle[ZZ]);
+    box[ZZ][XX] = vec[ZZ] * std::cos(angle[YY]);
+    box[ZZ][YY] = vec[ZZ] * (std::cos(angle[XX]) - std::cos(angle[YY]) * std::cos(angle[ZZ]))
+                  / std::sin(angle[ZZ]);
     box[ZZ][ZZ] =
             std::sqrt(gmx::square(vec[ZZ]) - box[ZZ][XX] * box[ZZ][XX] - box[ZZ][YY] * box[ZZ][YY]);
 }
@@ -469,7 +470,7 @@ static void low_set_pbc(t_pbc* pbc, PbcType pbcType, const ivec dd_pbc, const ma
             if (debug)
             {
                 pr_rvecs(debug, 0, "Box", box, DIM);
-                fprintf(debug, "max cutoff %.3f\n", sqrt(pbc->max_cutoff2));
+                fprintf(debug, "max cutoff %.3f\n", std::sqrt(pbc->max_cutoff2));
             }
             /* We will only need single shifts here */
             for (int kk = 0; kk < 3; kk++)
@@ -576,8 +577,8 @@ static void low_set_pbc(t_pbc* pbc, PbcType pbcType, const ivec dd_pbc, const ma
                                                     i,
                                                     j,
                                                     k,
-                                                    sqrt(d2old),
-                                                    sqrt(d2new),
+                                                    std::sqrt(d2old),
+                                                    std::sqrt(d2new),
                                                     trial[XX],
                                                     trial[YY],
                                                     trial[ZZ],

@@ -16,6 +16,16 @@ in the :ref:`release-notes`.
 Fixes where mdrun could behave incorrectly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The Verlet buffer estimate could be wrong with initial coordinates out of the box
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Due to incorrect periodic boundary treatment in the density estimate for
+the Verlet buffer calcalution, the Verlet buffer could be off when many atoms
+were outside the rectangular unit cell. In nearly all cases this would lead
+to a slightly too large buffer and almost never to a too short buffer.
+
+:issue:`5002`
+
 Correct forces with virtual_sites1
 """"""""""""""""""""""""""""""""""
 
@@ -26,8 +36,34 @@ sites.
 
 :issue:`4978`
 
+Avoid rounding errors with Parrinello-Rahman coupling of triclinic boxes
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+With triclinic boxes and isotropic or diagonal Parrinello-Rahman pressure
+coupling, the off-diagonal scaling matrix arguments could be non-zero.
+This was harmless, apart from causing an assertion failure when update
+was executed on a GPU.
+
+:issue:`4974`
+
 Fixes for ``gmx`` tools
 ^^^^^^^^^^^^^^^^^^^^^^^
+
+Fix grompp crash with atoms far out of the box
+""""""""""""""""""""""""""""""""""""""""""""""
+
+The Verlet buffer tolerance code did not put atoms correctly in the box,
+which could lead to illegal memory access in grompp
+
+:issue:`5002`
+
+Fix LJ combination rules mixup in nonbonded-benchmark tool
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+The gmx nonbonded-benchmark tool would use geometric LH combination rules instead
+of Lortenz-Berthelot and Lortenz-Berthelot instead of no combination rules.
+
+:issue:`4963`
 
 Fixes that affect portability
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -45,3 +81,12 @@ Now it is replaced with ``rdtime``.
 Miscellaneous
 ^^^^^^^^^^^^^
 
+Fix crashes with GPU direct communication for some atypical run configurations
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+When GPU direct communication was used in combination with atypical
+run conditions (e.g. many thread-MPI tasks on each GPU), crashes could
+occur when the tasks became very out of sync. This has now been made
+more robust.
+
+:issue:`5024`

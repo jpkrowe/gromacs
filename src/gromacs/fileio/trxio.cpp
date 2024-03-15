@@ -104,7 +104,7 @@ gmx_bool bRmod_fd(double a, double b, double c, gmx_bool bDouble)
 
     iq = static_cast<int>((a - b + tol * a) / c);
 
-    return fabs(a - b - c * iq) <= tol * fabs(a);
+    return std::fabs(a - b - c * iq) <= tol * std::fabs(a);
 }
 
 
@@ -229,12 +229,12 @@ int prec2ndec(real prec)
         gmx_fatal(FARGS, "DEATH HORROR prec (%g) <= 0 in prec2ndec", prec);
     }
 
-    return gmx::roundToInt(log(prec) / log(10.0));
+    return gmx::roundToInt(std::log(prec) / std::log(10.0));
 }
 
 real ndec2prec(int ndec)
 {
-    return pow(10.0, ndec);
+    return std::pow(10.0, ndec);
 }
 
 t_fileio* trx_get_fileio(t_trxstatus* status)

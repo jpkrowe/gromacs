@@ -1268,7 +1268,7 @@ void check_ir(const char*                    mdparin,
                     "If you want to remove the rotation around the center of mass, you should set "
                     "comm_mode = Angular instead of setting nstcomm < 0. nstcomm is modified to "
                     "its absolute value");
-            ir->nstcomm = abs(ir->nstcomm);
+            ir->nstcomm = std::abs(ir->nstcomm);
         }
 
         if (ir->nstcalcenergy > 0 && ir->nstcomm < ir->nstcalcenergy
@@ -5103,7 +5103,7 @@ void triple_check(const char* mdparin, t_inputrec* ir, gmx_mtop_t* sys, WarningH
         }
         for (m = 0; (m < DIM); m++)
         {
-            if (fabs(acceleration[m]) > 1e-6)
+            if (std::fabs(acceleration[m]) > 1e-6)
             {
                 const char* dim[DIM] = { "X", "Y", "Z" };
                 fprintf(stderr,

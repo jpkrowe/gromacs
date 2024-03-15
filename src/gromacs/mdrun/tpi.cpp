@@ -572,7 +572,7 @@ void LegacySimulator::do_tpi()
                   a_tp1 - a_tp0);
     }
 
-    refvolshift = log(det(rerun_fr.box));
+    refvolshift = std::log(det(rerun_fr.box));
 
     switch (inputRec_->eI)
     {
@@ -614,7 +614,7 @@ void LegacySimulator::do_tpi()
         const matrix& box = stateGlobal_->box;
 
         V    = det(box);
-        logV = log(V);
+        logV = std::log(V);
 
         bStateChanged = TRUE;
         bNS           = TRUE;
@@ -895,7 +895,7 @@ void LegacySimulator::do_tpi()
             else
             {
                 // Exponent argument is fine in SP range, but output can be in DP range
-                embU = exp(static_cast<double>(-beta * epot));
+                embU = std::exp(static_cast<double>(-beta * epot));
                 sum_embU += embU;
                 /* Determine the weighted energy contributions of each energy group */
                 e = 0;
@@ -1021,15 +1021,15 @@ void LegacySimulator::do_tpi()
             {
                 fprintf(stderr,
                         "mu %10.3e <mu> %10.3e\n",
-                        -log(sum_embU / nsteps) / beta,
-                        -log(VembU_all / V_all) / beta);
+                        -std::log(sum_embU / nsteps) / beta,
+                        -std::log(VembU_all / V_all) / beta);
             }
 
             fprintf(fp_tpi,
                     "%10.3f %12.5e %12.5e %12.5e %12.5e",
                     t,
-                    VembU_all == 0 ? 20 / beta : -log(VembU_all / V_all) / beta,
-                    sum_embU == 0 ? 20 / beta : -log(sum_embU / nsteps) / beta,
+                    VembU_all == 0 ? 20 / beta : -std::log(VembU_all / V_all) / beta,
+                    sum_embU == 0 ? 20 / beta : -std::log(sum_embU / nsteps) / beta,
                     sum_embU / nsteps,
                     V);
             for (e = 0; e < nener; e++)
@@ -1055,7 +1055,7 @@ void LegacySimulator::do_tpi()
     {
         fprintf(fpLog_, "\n");
         fprintf(fpLog_, "  <V>  = %12.5e nm^3\n", V_all / frame);
-        const double mu = -log(VembU_all / V_all) / beta;
+        const double mu = -std::log(VembU_all / V_all) / beta;
         fprintf(fpLog_, "  <mu> = %12.5e kJ/mol\n", mu);
 
         if (!std::isfinite(mu))
@@ -1087,8 +1087,12 @@ void LegacySimulator::do_tpi()
         xvgrLegend(fp_tpi, tpid_leg, oenv_);
         for (i = nbin - 1; i > 0; i--)
         {
-            bUlogV = -i / invbinw + bU_logV_bin_limit - refvolshift + log(V_all / frame);
-            fprintf(fp_tpi, "%6.2f %10d %12.5e\n", bUlogV, roundToInt(bin[i]), bin[i] * exp(-bUlogV) * V_all / VembU_all);
+            bUlogV = -i / invbinw + bU_logV_bin_limit - refvolshift + std::log(V_all / frame);
+            fprintf(fp_tpi,
+                    "%6.2f %10d %12.5e\n",
+                    bUlogV,
+                    roundToInt(bin[i]),
+                    bin[i] * std::exp(-bUlogV) * V_all / VembU_all);
         }
         xvgrclose(fp_tpi);
     }
