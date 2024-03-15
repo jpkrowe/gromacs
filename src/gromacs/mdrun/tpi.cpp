@@ -447,6 +447,7 @@ void LegacySimulator::do_tpi()
                 {
                     fprintf(fpLog_, "\n Atom %d at: %f %f %f\n", i - a_tp0, x[i][XX], x[i][YY], x[i][ZZ]);
                 }
+                fprintf(fpLog_, "\n");
         }
     }
     /* With the same pair list we insert in a sphere of radius rtpi
@@ -655,7 +656,16 @@ void LegacySimulator::do_tpi()
              */
             rng.restart(frame_step, step);
             dist.reset(); // erase any memory in the distribution
-
+            if (step == 0){
+                /*Printing the frame number at the start of each pair lets us relate the TPI energy to the frame*/
+                if (debug)
+                {
+                    if (fpLog_)
+                    {
+                        fprintf(fpLog_,"\nFrame number: %d\n",frame+1);
+                    }
+                }
+            }
             if (!bCavity)
             {
                 /* Random insertion in the whole volume */
@@ -875,11 +885,6 @@ void LegacySimulator::do_tpi()
             {
                 bEnergyOutOfBounds = TRUE;
             }
-            /* Quick print statement to work out what the value of GMX_REAL_MAX is*/
-            else
-            {
-                fprintf(debug, "\n\n\n GMX_REAL_MAX = %f\n\n\n", GMX_REAL_MAX);
-            }
             if (bEnergyOutOfBounds)
             {
                 if (debug)
@@ -973,10 +978,10 @@ void LegacySimulator::do_tpi()
                 {
                     fprintf(fpLog_,
                             "TPI %7d Epot: %12.5e exp(-bU): %12.5e mu: %10.3e \n COM pos: %12.5f %12.5f %12.5f\n",
-                            static_cast<int>(step),
+                            static_cast<int>(step+1),
                             epot, 
                             embU,
-                            -log(sum_embU / nsteps) / beta,
+                            -std::log(sum_embU / nsteps) / beta,
                             x_tp[XX],
                             x_tp[YY],
                             x_tp[ZZ]);
@@ -1014,11 +1019,17 @@ void LegacySimulator::do_tpi()
         frame++;
         V_all += V;
         VembU_all += V * sum_embU / nsteps;
-
+        if (debug)
+        {
+            if (fpLog_){
+                fprintf(fpLog_,"\n Mu for frame %d: %10.3e\n", frame, -std::log(sum_embU / nsteps) / beta);
+            }
+        }
         if (fp_tpi)
         {
             if (mdrunOptions_.verbose || frame % 10 == 0 || frame < 10)
             {
+                fprintf(stderr,"\nFrame number: %d\n",frame);
                 fprintf(stderr,
                         "mu %10.3e <mu> %10.3e\n",
                         -std::log(sum_embU / nsteps) / beta,
